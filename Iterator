@@ -1,0 +1,179 @@
+package data_structures;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.ConcurrentModificationException;
+
+public class BinarySearchTree<K,V> implements DictionaryADT<K,V>{
+	// variables
+	private Node<K,V> root;
+	private int currentsize;
+	private int modcounter;
+	private K returnkey;
+	
+	private class Node<K,V>{
+		private K key;
+		private V value;
+		private Node<K,V> leftChild;
+		private Node<K,V> rightChild;
+		public Node(K k,V v){
+			this.key = k;
+			this.value = v;
+			leftChild = rightChild = null;
+		}
+	//	public boolean hasChildren(){
+	//		return (leftChild!=null || rightChild != null);
+	//	}
+//		
+//		public boolean onlyLeftChild(){
+//			return(leftChild != null && rightChild == null);
+//		}
+//		public boolean onlyRightChild(){
+//			return(rightChild!= null && leftChild == null);
+//		}
+	}
+	
+	public BinarySearchTree(){
+		root = null;
+		currentsize =0;
+		modcounter = 0;
+		returnkey = null;
+	}
+	
+
+	@Override
+	public boolean contains(K key) {
+	//	return findKey(key, root)!= null;
+	if (root == null)
+		return false;
+	Node<K,V> current = root;
+	for(;;){
+		int compare = ((Comparable<K>)key).compareTo(current.key);
+		if (compare < 0){
+			if(current.leftChild == null)
+				return false;
+			current = current.leftChild;
+		}
+		else if (compare > 0){
+			if(current.rightChild == null)
+				return false;
+			current = current.rightChild;
+		}
+		else 
+			return true;
+	}
+	}
+
+	@Override
+	public boolean add(K key, V value) {
+	if(findKey(key,root)!= null)
+		return false;
+	if(root == null)
+		root = new Node<K,V>(key,value);
+	else
+		
+		/// FIX THIS FIX FIX FIX
+		addNode(key,value,root,null,false);
+		currentsize++;
+		modcounter++;
+		return true;
+	}
+
+	@Override
+	public boolean delete(K key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public V getValue(K key) {
+		return findValue(key,root);// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public K getKey(V value) {
+		findkey(root,value);
+		return returnkey;// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isFull() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Iterator<K> keys() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator<V> values() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/// extra 
+	private V findValue (K key,Node<K,V> n){
+		if(n==null) return null;
+		if(((Comparable<K>)key).compareTo(n.key)<0)
+			return findValue (key,n.leftChild);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
+
