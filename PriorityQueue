@@ -1,0 +1,89 @@
+
+package data_structures;
+import java.util.Iterator;
+
+public interface PriorityQueue<E extends Comparable <E>> extends Iterable<E> { public static final int DEFAULT_MAX_CAPACITY = 1000;
+// Inserts a new object into the priority queue. Returns true if // the insertion is successful. If the PQ is full, the insertion // is aborted, and the method returns false.
+
+
+public class Node<E>{  // same for both unordered
+	E data;
+	Node<E> next;
+	
+	public Node(E data){
+		this.data = data; //whatever in the node is that data
+		this.next = null;
+	}
+}
+
+public boolean insert(E object);
+		Node<E> newNode = newNode(obj);
+		if(head == null) // if empty
+			head = newNode; // for unordered you keep tail
+			prev = null;
+			curr = head; 
+			
+		while(current != null){ 
+		if (obj.compareTo(tmp.data) >= 0) // == 0 means they are equal to each other
+			prev = curr;
+			curr = curr.next;
+		}
+		
+		else(prev = null){ // at the front
+		}
+			newNode.next = head;
+			head = newNode;
+		}
+		else { // at the end 
+			if (curr = null)
+			tail = newNode.next;
+			
+			else{
+			prev.next = newNode// for inbetween 
+			current = newNode.next
+			
+			
+			
+		// if inserting first before the head
+		}
+			// goes at back not at the head, 
+			// inbetween 
+			
+			
+			
+			 public E remove();
+				 head.next = head; 
+
+/*if ( isEmpty() )
+	firstNode = lastNode = new ListNode (insertItem);
+else 
+	firstNode = new ListNode (insertItem, firstNode);
+}
+*/
+				 
+			 
+				 
+				 
+}
+
+public boolean insert(E object);
+// Removes the object of highest priority that has been in the
+// PQ the longest, and returns it. Returns null if the PQ is empty. public E remove();
+// Deletes all instances of the parameter obj from the PQ if found, and
+// returns true. Returns false if no match to the parameter obj is found. public boolean delete(E obj);
+// Returns the object of highest priority that has been in the // PQ the longest, but does NOT remove it.
+// Returns null if the PQ is empty.
+public E peek();
+// Returns true if the priority queue contains the specified element // false otherwise.
+public boolean contains(E obj);
+// Returns the number of objects currently in the PQ. public int size();
+    //  Returns the PQ to an empty state.
+    public void clear();
+// Returns true if the PQ is empty, otherwise false public boolean isEmpty();
+// Returns true if the PQ is full, otherwise false. List based // implementations should always return false.
+public boolean isFull();
+// Returns an iterator of the objects in the PQ, in no particular // order.
+public Iterator<E> iterator();
+}
+
+
