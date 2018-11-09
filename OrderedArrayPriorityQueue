@@ -1,0 +1,272 @@
+/*
+ * Vanessa Chammas
+ * Program 1 CS 310
+ * cssc 0709
+ * OrderedArrayPriorityQueue
+ * 
+ */
+
+package data_structures;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class OrderedArrayPriorityQueue<E extends Comparable<E>> implements PriorityQueue<E> {
+
+    private Object[] elements;
+    private int capacity;
+    private int numElements;
+
+    /*
+     * Create a new ordered priority queue
+     */
+    public OrderedArrayPriorityQueue() {
+        this(DEFAULT_MAX_CAPACITY);
+    }
+
+    /*
+     * Create a new ordered priority queue
+     *
+     * @param capacity maximum capacity
+     */
+    public OrderedArrayPriorityQueue(int capacity) {
+        this.capacity = capacity;
+        elements = new Object[capacity];
+    }
+
+    /*
+     * Insert a new element into the tree. Object will not be inserted if queue
+     * is full
+     *
+     * @param object Object to be inserted
+     * @return True if the object has been inserted, otherwise false.
+     */
+    @Override
+    public boolean insert(E object) {
+        if (isFull()) {
+            return false;
+        }
+
+        int i = numElements - 1;
+
+        while (i >= 0 && ((E) elements[i]).compareTo(object) < 0) {
+            elements[i + 1] = elements[i];
+            i--;
+        }
+
+        elements[i + 1] = object;
+        numElements++;
+        return true;
+    }
+
+    /*
+     * Returns an iterator of the objects in the PQ, in no particular
+     *
+     * @return Iterator
+     */
+    @Override
+    public Iterator<E> iterator() {
+        return new OrderedArrayPriorityQueueIterator();
+    }
+
+    /*
+     * Remove the object of highest priority that has been in the
+     *
+     * @return The next element that has the highest priority
+     * @throws NoSuchElementException if the queue is empty
+     */
+    @Override
+    public E remove() {
+        if (isEmpty()) {
+            return null;
+            // throw new NoSuchElementException();
+        }
+
+        int removeIndex = numElements - 1;
+        E element = (E) elements[removeIndex];
+        
+        while(removeIndex - 1 >= 0 && element.compareTo((E)elements[removeIndex - 1]) == 0) {
+            element = (E) elements[removeIndex - 1];
+            removeIndex--;
+        }
+        
+        for(int i = removeIndex; i < numElements - 1; i++) {
+            elements[i] = elements[i + 1];
+        }
+        
+        numElements--;
+        return element;
+    }
+
+    /*
+     * Deletes all instances of the parameter object from the PQ if found
+     *
+     * @param object Object to delete
+     * @return True if the object has been found and deleted, otherwise false if
+     * the object does not exist.
+     */
+    @Override
+    public boolean delete(E object) {
+        boolean result = false;
+        int index = binarySearch(object);
+
+        while (index >= 0) {
+            // Shift and re-arrange the queue
+            for (int i = index; i < numElements - 1; i++) {
+                elements[i] = elements[i + 1];
+            }
+
+            numElements--;
+            result = true;
+
+            // Find the next
+            index = binarySearch(object);
+        }
+
+        return result;
+    }
+
+    /*
+     * search and return the index of an object in the queue
+     *
+     * @param object Object to search
+     * @return Index of object in queue, -1 if not found
+     */
+    private int binarySearch(E object) {
+        int left = 0;
+        int right = numElements - 1;
+
+        while (left <= right) {
+            int middle = left + (right - left) / 2;
+
+            if (object.compareTo((E) elements[middle]) > 0) {
+                right = middle - 1;
+            } else if (object.compareTo((E) elements[middle]) < 0) {
+                left = middle + 1;
+            } else {
+                return middle;
+            }
+        }
+
+        return -1;
+    }
+
+    /*
+     * Returns the object of highest priority that has been in the queue the
+     * longest but does not remove it.
+     *
+     * @return The next element that has the highest priority.
+     * @throws NoSuchElementException if the queue is empty
+     */
+    @Override
+    public E peek() {
+        if (isEmpty()) {
+            return null;
+            // throw new NoSuchElementException();
+        }
+        
+        int targetIndex = numElements - 1;
+        E element = (E) elements[targetIndex];
+        
+        while(targetIndex - 1 >= 0 && element.compareTo((E)elements[targetIndex - 1]) == 0) {
+            element = (E) elements[targetIndex - 1];
+            targetIndex--;
+        }
+
+        return element;
+    }
+
+    /*
+     * Check if the object is in the queue
+     *
+     * @param object Object to binarySearch
+     * @return True if the object is in the queue, otherwise false
+     */
+    @Override
+    public boolean contains(E object) {
+        return binarySearch(object) >= 0;
+    }
+
+    /*
+     * Return the number of elements in the queue
+     *
+     * @return Number of elements
+     */
+    @Override
+    public int size() {
+        return numElements;
+    }
+
+    /*
+     * Make the queue empty
+     */
+    @Override
+    public void clear() {
+        numElements = 0;
+    }
+
+    /*
+     * Check if the queue is empty
+     *
+     * @return True if it is, otherwise false
+     */
+    @Override
+    public boolean isEmpty() {
+        return numElements == 0;
+    }
+
+    /*
+     * Check if the queue is full
+     *
+     * @return True if it is, otherwise false
+     */
+    @Override
+    public boolean isFull() {
+        return numElements >= capacity;
+    }
+
+    private class OrderedArrayPriorityQueueIterator<E> implements Iterator<E> {
+
+        private Object[] iteratedElements;
+        private int nextIndex = 0;
+
+        /*
+         * Arrange the elements to be traversed. We create a copy of the element
+         * and no direct access to the actual array to avoid problems
+         */
+        public OrderedArrayPriorityQueueIterator() {
+            iteratedElements = new Object[numElements];
+
+            for (int i = 0; i < numElements; i++) {
+                iteratedElements[i] = elements[i];
+            }
+        }
+
+        /*
+         * Check if here is a next element to iterate
+         *
+         * @return True if there is, otherwise false
+         */
+        @Override
+        public boolean hasNext() {
+            return nextIndex < iteratedElements.length;
+        }
+
+        /*
+         * Get the next element to iterate
+         *
+         * @return Element
+         * @throws NoSuchElementException if there is no next element
+         */
+        @Override
+        public E next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            E element = (E) iteratedElements[nextIndex++];
+            return element;
+        }
+    }
+}
+
