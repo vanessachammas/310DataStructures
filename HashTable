@@ -1,0 +1,499 @@
+package data_structures;
+
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+//import data_structures.UnorderedLinkedListPriorityQueue.Node;
+//import data_structures.UnorderedLinkedListPriorityQueue.UnorderedLinkedListPriorityQueueIterator;
+
+public class Hashtable<K extends Comparable<K>, V> implements DictionaryADT<K, V> {
+	int currentsize;
+	int maxsize;
+	int tablesize;
+	long modcounter;// mod counter for iterator
+	private UnorderedLinkedListPriorityQueue<DictionaryNode<K, V>>[] list;
+
+	public Hashtable(int size) {
+		currentsize = 0;
+		maxsize = size;
+		tablesize = (int) (maxsize * 1.3f);
+		modcounter = 0;
+		list = new UnorderedLinkedListPriorityQueue[tablesize];
+		for (int i = 0; i < tablesize; i++) {
+			list[i] = new UnorderedLinkedListPriorityQueue<DictionaryNode<K, V>>();
+		}
+	}
+
+	private int Hashfunction(K key) { // key is the name K is the key this
+										// is a method!!
+		int index = (key.hashCode() & 0x7FFFFFFF) % tablesize;
+		return index; // gives a spot for the table
+	}
+
+	// public class Linkedlist<E extends Comparable<E>> implements Iterable<E> {
+
+	class DictionaryNode<K extends Comparable<K>, V> implements Comparable<DictionaryNode<K, V>> {
+		K key;
+		V value;
+
+		public DictionaryNode(K key, V value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		public int compareTo(DictionaryNode<K, V> node) {
+			return ((Comparable<K>) key).compareTo((K) node.key);
+
+		}
+
+	}
+	
+	
+	
+	//Paste in here
+	
+	
+	public class UnorderedLinkedListPriorityQueue<E extends Comparable<E>> implements PriorityQueue<E> {
+
+		private Node<E> head;
+		private int numElements;
+
+		/**
+		 * Create a new ordered priority queue
+		 */
+		public UnorderedLinkedListPriorityQueue() {
+			numElements = 0;
+		}
+
+		/**
+		 * Insert a new element into the tree
+		 *
+		 * @param object
+		 *            Object to be inserted
+		 * @return True
+		 */
+		@Override
+		public boolean insert(E object) {
+			if (isEmpty()) {
+				head = new Node<E>(object);
+			} else {
+				Node<E> newNode = new Node<E>(object);
+				newNode.next = head;
+				head = newNode;
+			}
+			numElements++;
+			return true;
+		}
+
+		/**
+		 * Remove the object of highest priority that has been in the queue
+		 *
+		 * @return The next element that has the highest priority
+		 */
+		@Override
+		public E remove() {
+			if (isEmpty()) {
+				return null;
+			}
+
+			Node<E> previousOfHighestPriorityNode = null;
+			Node<E> highestPriorityNode = null;
+
+			Node<E> previous = null;
+			Node<E> current = head;
+
+			while (current != null) {
+				if (highestPriorityNode == null || current.element.compareTo(highestPriorityNode.element) <= 0) {
+					previousOfHighestPriorityNode = previous;
+					highestPriorityNode = current;
+				}
+
+				previous = current;
+				current = current.next;
+			}
+
+			E removeElement = highestPriorityNode.element;
+
+			if (highestPriorityNode == head) {
+				head = head.next;
+			} else {
+				previousOfHighestPriorityNode.next = highestPriorityNode.next;
+			}
+			numElements--;
+			return removeElement;
+		}
+
+		/**
+		 * Delete all instances of the object in the queue
+		 *
+		 * @param object
+		 *            Object to delete
+		 * @return True if it was deleted, otherwise false
+		 */
+		@Override
+		public boolean delete(E object) {
+			boolean result = false;
+
+			Node<E> previous = null;
+			Node<E> current = head;
+
+			while (current != null) {
+				if (current.element.compareTo(object) == 0) {
+					if (current == head) {
+						// Case when deleting at the tail
+						head = head.next;
+					} else {
+						previous.next = current.next;
+						current = previous;
+					}
+
+					numElements--;
+					result = true;
+				}
+
+				if (current != null) {
+					previous = current;
+					current = current.next;
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * Return the next highest priority object.
+		 *
+		 * @return Highest priority object.
+		 */
+		@Override
+		public E peek() {
+			if (isEmpty()) {
+				return null;
+			}
+
+			Node<E> highestPriorityNode = null;
+			Node<E> current = head;
+
+			while (current != null) {
+				if (highestPriorityNode == null || current.element.compareTo(highestPriorityNode.element) <= 0) {
+					highestPriorityNode = current;
+				}
+
+				current = current.next;
+			}
+
+			return highestPriorityNode.element;
+		}
+
+		/**
+		 * Check if the object is in the queue
+		 *
+		 * @param object
+		 *            Object to search
+		 * @return True if the object is in the queue, otherwise false
+		 */
+		@Override
+		public boolean contains(E object) {
+			if (isEmpty()) {
+				return false;
+			}
+
+			Node<E> current = head;
+
+			while (current != null) {
+				if (current.element.compareTo(object) == 0) {
+					return true;
+				}
+
+				current = current.next;
+			}
+
+			return false;
+		}
+
+		/**
+		 * Return the number of elements in the queue
+		 *
+		 * @return Number of elements
+		 */
+		@Override
+		public int size() {
+			return numElements;
+		}
+
+		/**
+		 * Make the queue empty
+		 */
+		 @Override
+		 public void clear() {
+		 numElements = 0;
+		 head = null;
+		 }
+
+		/**
+		 * Check if the queue is empty
+		 *
+		 * @return True if it is, otherwise false
+		 */
+		@Override
+		public boolean isEmpty() {
+			return numElements == 0;
+		}
+
+		/**
+		 * Check if the queue is full
+		 *
+		 * @return True if it is, otherwise false
+		 */
+		@Override
+		public boolean isFull() {
+			return false;
+		}
+
+		/**
+		 * Returns an iterator of the objects in the PQ
+		 *
+		 * @return Iterator
+		 */
+		@Override
+		public Iterator<E> iterator() {
+			return new UnorderedLinkedListPriorityQueueIterator<E>();
+		}
+
+		private class Node<T> {
+
+			public T element;
+			public Node<T> next;
+
+			/**
+			 * Create a new node object
+			 *
+			 * @param element
+			 *            Element it will hold
+			 */
+			public Node(T element) {
+				this.element = element;
+			}
+		}
+
+		private class UnorderedLinkedListPriorityQueueIterator<E> implements Iterator<E> {
+
+			private Node<E> current;
+
+			/**
+			 * Iterate from head to tail
+			 */
+			public UnorderedLinkedListPriorityQueueIterator() {
+				this.current = (Node<E>) head;
+			}
+
+			/**
+			 * Check if here is a next element to iterate
+			 *
+			 * @return True if there is, otherwise false
+			 */
+			@Override
+			public boolean hasNext() {
+				return current != null;
+			}
+
+			@Override
+			public E next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
+
+				E element = current.element;
+				current = current.next;
+				return element;
+			}
+		}
+	}
+	
+	
+	//Up there
+
+	/*
+	 * private V find(K key, Node<K,V> n) { if(n == null) return null;
+	 * if(((Comparable<K>)key).compareTo(n.key)< 0) // go left return
+	 * find(key,n.leftChild); if(((Comparable<K>)key).compareTo(n.key) > 0) //
+	 * go right return find(key, n.rightChild); return (V) n.value; // value is
+	 * found
+	 * 
+	 * }
+	 */
+
+	public boolean contains(K key) {
+		// TODO Auto-generated method stub
+		if (isEmpty())
+			return false;
+
+		// return key[getHashCode(k)].contains(new DictionaryNode<K,V>
+		// (k,null);// check this ? ? ? ? ?
+		// return find(key, n)!= null; // if finds the value it returns
+		// true! (n is the starting value could b head)
+		list[Hashfunction(key)].contains(new DictionaryNode<K, V>(key, null));
+		return true;
+	}
+
+	public boolean add(K key, V value) {
+		if (isFull()) {
+			return false;
+		}
+		if (contains(key) == true) {
+			return false; // only should return false because the linked
+							// list
+		}
+		list[Hashfunction(key)].insert(new DictionaryNode<K, V>(key, value));
+		currentsize++;
+		modcounter++;
+		return true;
+	}
+
+	public boolean delete(K key) {
+		list[Hashfunction(key)].delete(new DictionaryNode<K, V>(key, null));
+		return false;
+	}
+
+	@Override
+	public V getValue(K key) {
+	
+		 // using a key to find a value TODO Auto-generated method stub
+		
+//		if (isEmpty() || (list[Hashfunction(key)].contains(new DictionaryNode<K,V>(key,null))){
+//			return list[Hashfunction(key)] ;
+		// the data is the key and the key is the .next
+		
+			for (int i = 0; i < tablesize; i++) {
+				for ( DictionaryNode<K, V> node : list[i]) {
+				list[i] = new UnorderedLinkedListPriorityQueue<DictionaryNode<K, V>>();
+			}
+
+	
+		}
+	}
+
+	@Override
+	public K getKey(V value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int size() {
+		// currentsize; TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isFull() {
+	if (currentsize == maxsize){
+		return true;
+	}
+		return false;
+	}
+
+	@Override
+	public boolean isEmpty() {
+	if (currentsize == 0){
+		return true;
+	}
+	}
+
+	@Override
+	public void clear() {
+		currentsize = 0;
+		for (int i = 0; i < tablesize; i++) {
+			list[i] = new UnorderedLinkedListPriorityQueue<DictionaryNode<K, V>>();
+		}	// TODO Auto-generated method stub
+modcounter++;
+	}
+
+	@Override
+	public Iterator<K> keys() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Iterator<V> values() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	abstract class IteratorHelper<E> implements Iterator<E> {
+		protected DictionaryNode<K, V>[] nodes;
+		protected int idx;
+		protected long modCheck;
+
+		public IteratorHelper() {
+			nodes = new DictionaryNode[counter];
+			idx = 0;
+			int j = 0;
+			modCheck = modcounter;
+			for (int i = 0; i < tablesize; i++)
+				for (DictionaryNode n : list[i])
+					nodes[j++] = n;
+			nodes = (DictionaryNode<K, V>[]) ObjectSorter.quickSort(nodes);
+		}
+
+		public boolean hasNext() {
+			if (modCheck != modcounter)
+				throw new ConcurrentModificationException();
+			return idx < counter;
+		}
+
+		public abstract E next();
+
+		DictionaryNode<K, V>[] shellshort(DictionaryNode<K, V>[] nodes) {
+			DictionaryNode<K, V>[] array = nodes;
+			int in, out, h = 1;
+			int size = nodes.length;
+			DictionaryNode<K, V> temp;
+
+			while (h <= size / 3)
+				h = h * 3 + 1;
+			while (h > 0) {
+				for (out = h; out < size; out++) {
+					temp = nodes[out];
+					in = out;
+					while ((in > h - 1) && (nodes[in - h].compareTo(temp)) >= 0) {
+						nodes[in] = nodes[in - h];
+						in -= h;
+					}
+
+					nodes[in] = temp;
+				}
+				h = (h - 1) / 3;
+			}
+			return nodes;
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	class KeyIteratorHelper<K> extends IteratorHelper<K> {
+		public KeyIteratorHelper() {
+			super();
+		}
+
+		public K next() {
+			return (K) nodes[idx++].key;
+		}
+	}
+
+	class ValueIteratorHelper<V> extends IteratorHelper<V> {
+		public ValueIteratorHelper() {
+			super();
+		}
+
+		public V next() {
+			return (V) nodes[idx++].value;
+		}
+
+	}
+}
+
+
