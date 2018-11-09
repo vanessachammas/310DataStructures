@@ -1,0 +1,275 @@
+//Vanessa Chammas
+//
+package data_structures;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class OrderedLinkedListPriorityQueue<E extends Comparable<E>> implements PriorityQueue<E> {
+
+    private Node<E> head;
+    private int numElements;
+
+    /**
+     * Create a new order linked list
+     */
+    public OrderedLinkedListPriorityQueue() {
+        head = null;
+        numElements=0;
+    }
+
+    /**
+     * Insert a new element into the tree.
+     *
+     * @param object Object to be inserted
+     * @return True
+     */
+    @Override
+    public boolean insert(E object) {
+        numElements++;
+
+        if (head == null) { // could put is empty
+            // Case when list is empty
+            head = new Node<E>(object);
+            return true;
+        }
+        
+        // Since this is sorted, do a direct comparison at the end of the
+        // list to avoid looping
+
+        Node<E> newNode = new Node<E>(object);
+        Node<E> current = head;
+        Node<E> previous = null;
+
+        while (current != null && current.element.compareTo(object) <= 0) {
+            previous = current;
+            current = current.next;
+        }
+        if (current == head) {
+            newNode.next = current;
+             head = newNode;
+         } else {
+             previous.next = newNode;
+             newNode.next = current;
+         }
+
+         return true;
+    }
+
+    /**
+     * Remove the object of highest priority that has been in queue
+     *
+     * @return The next element that has the highest priority
+     */
+    @Override
+    public E remove() {
+        if (isEmpty()) {
+            return null;
+        }
+
+        E removeElement = head.element;
+        head = head.next;
+
+        numElements--;
+        return removeElement;
+    }
+
+    /**
+     * Deletes all instances of the parameter object from the PQ if found
+     *
+     * @param object Object to delete
+     * @return True if the object has been found and deleted, otherwise false if
+     * the object does not exist.
+     */
+    @Override
+    public boolean delete(E object) {
+        // Do a direct comparison at the end before looping, since this is a sorted list
+        if(!contains(object)) {
+            return false;
+        }
+        
+        boolean result = false;
+
+        Node<E> previous = null;
+        Node<E> current = head;
+
+        while (current != null) {
+            if (current.element.compareTo(object) == 0) {
+                if (current == head) {
+                    // Case when deleting at the tail
+                    head = head.next;
+                } else {
+                    previous.next = current.next;
+                    current = previous;
+                }
+
+                numElements--;
+                result = true;
+            } else if(object.compareTo(object) > 0) {
+                // Since this is sorted and if we go beyond an item greater than
+                // what we're looking for, then stop search
+                break;
+            }
+
+            if (current != null) {
+                previous = current;
+                current = current.next;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the object of highest priority that has been in the queue the
+     * longest but does not remove it.
+     *
+     * @return The next element that has the highest priority.
+     */
+    @Override
+    public E peek() {
+        if (isEmpty()) {
+            return null;
+        }
+        
+        return head.element;
+    }
+
+    /**
+     * Check if the object is in the queue
+     *
+     * @param object Object to search
+     * @return True if the object is in the queue, otherwise false
+     */
+    @Override
+    public boolean contains(E object) {
+        if (isEmpty()) {
+            return false;
+        }
+
+        // Direct shortcut to the head and tail to avoid unnecessary lops
+        Node<E> current = head;
+
+        while (current != null) {
+            if (current.element.compareTo(object) == 0) {
+                return true;
+            }
+            
+            if(object.compareTo(current.element) > 0) {
+                // Since this is a sorted list, if we go beyond an element's value we stop right away
+                return false;
+            }
+
+            current = current.next;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return the number of elements in the queue
+     *
+     * @return Number of elements
+     */
+    @Override
+    public int size() {
+        return numElements;
+    }
+
+    /**
+     * Make the queue empty
+     */
+    @Override
+    public void clear() {
+        numElements = 0;
+        head = null;
+    }
+
+    /**
+     * Check if the queue is empty
+     *
+     * @return True if it is, otherwise false
+     */
+    @Override
+    public boolean isEmpty() {
+        return numElements == 0;
+    }
+
+    /**
+     * Check if the queue is full
+     *
+     * @return True if it is, otherwise false
+     */
+    @Override
+    public boolean isFull() {
+        return false;
+    }
+    public String toString(){
+    	Node<E> current = head;
+    	String toRet ="[ ";
+    	while(current != null){
+    		toRet += current.element + ", ";
+    		current = current.next;
+    	}
+    	toRet +="]";
+    	return toRet;
+    }
+
+    /**
+     * Returns an iterator of the objects in the PQ
+     *
+     * @return Iterator
+     */
+    @Override
+    public Iterator<E> iterator() {
+        return new OrderedLinkedListPriorityQueueIterator();
+    }
+
+     class OrderedLinkedListPriorityQueueIterator<E> implements Iterator<E> {
+
+        private Node<E> current;
+
+        /**
+         * Iterate from head to tail
+         */
+        public OrderedLinkedListPriorityQueueIterator() {
+            this.current = (Node<E>) head;
+        }
+
+        /**
+         * Check if here is a next element to iterate
+         *
+         * @return True if there is, otherwise false
+         */
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public E next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            E element = current.element;
+            current = current.next;
+            return element;
+        }
+    }
+
+    private class Node<T> {
+
+        public T element;
+        public Node<T> next;
+
+        /**
+         * Create a new Node<E> object
+         *
+         * @param element Element it will hold
+         */
+        public Node(T element) {
+            this.element = element;
+        }
+    }
+}
+
